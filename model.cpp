@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Model::Model(const char *filename): vertics() {
+Model::Model(const char *filename): vertics(), faces() {
     ifstream model;
     model.open(filename, std::ifstream::in);
 
@@ -17,7 +17,7 @@ Model::Model(const char *filename): vertics() {
 
     string line;
     while (std::getline(model, line)) {
-        istringstream iss(line);
+        istringstream iss(line); // Decoupe line par les espaces
         string startLine;
         iss >> startLine;
         if (startLine.compare("v") == 0) {
@@ -25,8 +25,17 @@ Model::Model(const char *filename): vertics() {
             iss >> vec.x;
             iss >> vec.y;
             iss >> vec.z;
-
             vertics.push_back(vec);
+        } else if (startLine.compare("f") == 0) {
+            vector<int> face;
+            for (int i = 0; i < 3; i++) {
+                int vert, itmp;
+                char tmp;
+                //     nb      /       nb      /       nb
+                iss >> vert >> tmp >> itmp >> tmp >> itmp;
+                face.push_back(vert-1); // On ajoute l'index-1 car la liste commence a 1
+            }
+            faces.push_back(face);
         }
     }
 
@@ -40,5 +49,15 @@ int Model::nbVertics() {
 Vec3f Model::vertic(int index) {
     if (index < nbVertics()) {
         return vertics[index];
+    }
+}
+
+int Model::nbFaces() {
+    return faces.size();
+}
+
+vector<int> Model::face(int index) {
+    if (index < nbFaces()) {
+        return faces[index];
     }
 }

@@ -3,10 +3,11 @@
 #include "tgaimage.h"
 #include "model.h"
 
-constexpr int width     = 300;
-constexpr int height    = 300;
+constexpr int width     = 500;
+constexpr int height    = 500;
 
-const TGAColor white = { 255, 255, 255, 255};
+const TGAColor white    = { 255, 255, 255, 255 };
+const TGAColor red      = { 255, 0, 0, 255 };
 
 void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     bool steep = false;
@@ -42,9 +43,13 @@ int main() {
     Model model("../obj/african_head.obj");
     TGAImage image(width, height, TGAImage::RGB);
 
-    for (int i = 0; i < model.nbVertics(); i++) {
-        Vec3f vec = model.vertic(i);
-        image.set((vec.x+1.)*width/2, (vec.y+1.)*height/2, white);
+    for (int i = 0; i < model.nbFaces(); i++) {
+        std::vector<int> face = model.face(i);
+        for (int j = 0; j < 3; j++) {
+            Vec3f v1 = model.vertic(face[j]);
+            Vec3f v2 = model.vertic(face[(j+1)%3]);
+            drawLine((v1.x+1)*width/2, (v1.y+1)*height/2, (v2.x+1)*width/2, (v2.y+1)*height/2, image, white);
+        }
     }
 
     image.write_tga_file("out.tga");
