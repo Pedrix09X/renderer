@@ -1,8 +1,10 @@
 #include <cmath>
+#include <iostream>
 #include "tgaimage.h"
+#include "model.h"
 
-constexpr int width     = 100;
-constexpr int height    = 100;
+constexpr int width     = 300;
+constexpr int height    = 300;
 
 const TGAColor white = { 255, 255, 255, 255};
 
@@ -37,8 +39,14 @@ void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 }
 
 int main() {
+    Model model("../obj/african_head.obj");
     TGAImage image(width, height, TGAImage::RGB);
-    drawLine(10, 10, 40, 40, image, white);
+
+    for (int i = 0; i < model.nbVertics(); i++) {
+        Vec3f vec = model.vertic(i);
+        image.set((vec.x+1.)*width/2, (vec.y+1.)*height/2, white);
+    }
+
     image.write_tga_file("out.tga");
     return 0;
 }
