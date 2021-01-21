@@ -10,7 +10,7 @@ private:
     std::vector<std::vector<int>> faces;
 
 public:
-    Model(const char *filename);
+    Model(const char *filename, int width, int height);
     int nbVertics();
     Vec3f vertic(int index);
     int nbFaces();

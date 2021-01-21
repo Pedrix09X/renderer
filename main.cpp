@@ -3,8 +3,8 @@
 #include "tgaimage.h"
 #include "model.h"
 
-constexpr int width     = 500;
-constexpr int height    = 500;
+constexpr int width     = 1000;
+constexpr int height    = 1000;
 
 const TGAColor white    = { 255, 255, 255, 255 };
 const TGAColor red      = { 255, 0, 0, 255 };
@@ -39,17 +39,42 @@ void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     }
 }
 
+void drawTriangle(Vec3f v1, Vec3f v2, Vec3f v3, TGAImage &image, TGAColor color) {
+    if (v1.y==v2.y && v1.y==v3.y) return;
+    if (v1.y>v2.y) std::swap(v1, v2);
+    if (v1.y>v3.y) std::swap(v1, v3);
+    if (v2.y>v3.y) std::swap(v2, v3);
+
+    int total_height = v3.y-v1.y;
+    for (int i=0; i<total_height; i++) {
+        bool second_half = i>v2.y-v1.y || v2.y==v1.y;
+        int segment_height = second_half ? v3.y-v2.y : v2.y-v1.y;
+        float alpha = (float)i/total_height;
+        float beta  = (float)(i-(second_half ? v2.y-v1.y : 0))/segment_height; // be careful: with above conditions no division by zero here
+        Vec3f A =               v1 + (v3-v1)*alpha;
+        Vec3f B = second_half ? v2 + (v3-v2)*beta : v1 + (v2-v1)*beta;
+        if (A.x>B.x) std::swap(A, B);
+        for (int j=A.x; j<=B.x; j++) {
+            image.set(j, v1.y+i, color); // attention, due to int casts v1.y+i != A.y
+        }
+    }
+
+    /*
+    drawLine(v1.x, v1.y, v2.x, v2.y, image, color);
+    drawLine(v2.x, v2.y, v3.x, v3.y, image, color);
+    drawLine(v3.x, v3.y, v1.x, v1.y, image, color);
+     */
+}
+
 int main() {
-    Model model("../obj/african_head.obj");
+    Model model("../obj/african_head.obj", width, height);
     TGAImage image(width, height, TGAImage::RGB);
 
     for (int i = 0; i < model.nbFaces(); i++) {
         std::vector<int> face = model.face(i);
-        for (int j = 0; j < 3; j++) {
-            Vec3f v1 = model.vertic(face[j]);
-            Vec3f v2 = model.vertic(face[(j+1)%3]);
-            drawLine((v1.x+1)*width/2, (v1.y+1)*height/2, (v2.x+1)*width/2, (v2.y+1)*height/2, image, white);
-        }
+
+        TGAColor color = { static_cast<uint8_t>(rand()%255), static_cast<uint8_t>(rand()%255), static_cast<uint8_t>(rand()%255) };
+        drawTriangle(model.vertic(face[0]), model.vertic(face[1]), model.vertic(face[2]), image, color);
     }
 
     image.write_tga_file("out.tga");

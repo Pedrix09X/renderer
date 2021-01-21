@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Model::Model(const char *filename): vertics(), faces() {
+Model::Model(const char *filename, int width, int height): vertics(), faces() {
     ifstream model;
     model.open(filename, std::ifstream::in);
 
@@ -25,6 +25,8 @@ Model::Model(const char *filename): vertics(), faces() {
             iss >> vec.x;
             iss >> vec.y;
             iss >> vec.z;
+            vec.x = (vec.x+1)*width/2;      // Normalisation des coordonnees
+            vec.y = (vec.y+1)*height/2;
             vertics.push_back(vec);
         } else if (startLine.compare("f") == 0) {
             vector<int> face;
