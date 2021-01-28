@@ -66,15 +66,36 @@ void drawTriangle(Vec3f v1, Vec3f v2, Vec3f v3, TGAImage &image, TGAColor color)
      */
 }
 
+Vec3f translateCoords(Vec3f vec) {
+    vec.x = (vec.x+1)*width/2;
+    vec.y = (vec.y+1)*height/2;
+    return vec;
+}
+
 int main() {
     Model model("../obj/african_head.obj", width, height);
     TGAImage image(width, height, TGAImage::RGB);
 
+    Vec3f light(0, 0, -1 );
     for (int i = 0; i < model.nbFaces(); i++) {
         std::vector<int> face = model.face(i);
 
-        TGAColor color = { static_cast<uint8_t>(rand()%255), static_cast<uint8_t>(rand()%255), static_cast<uint8_t>(rand()%255) };
-        drawTriangle(model.vertic(face[0]), model.vertic(face[1]), model.vertic(face[2]), image, color);
+        Vec3f v1 = model.vertic(face[0]);
+        Vec3f v2 = model.vertic(face[1]);
+        Vec3f v3 = model.vertic(face[2]);
+
+        Vec3f n = (v3-v1)^(v2-v1);
+        n.normalize();
+
+        float intensity = n*light;
+        if (intensity > 0) {
+            TGAColor color = {intensity * 255, intensity * 255, intensity * 255, 255};
+            //TGAColor color = { static_cast<uint8_t>(rand()%255), static_cast<uint8_t>(rand()%255), static_cast<uint8_t>(rand()%255) };
+            v1 = translateCoords(v1);
+            v2 = translateCoords(v2);
+            v3 = translateCoords(v3);
+            drawTriangle(v1, v2, v3, image, color);
+        }
     }
 
     image.write_tga_file("out.tga");

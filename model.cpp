@@ -25,8 +25,8 @@ Model::Model(const char *filename, int width, int height): vertics(), faces() {
             iss >> vec.x;
             iss >> vec.y;
             iss >> vec.z;
-            vec.x = (vec.x+1)*width/2;      // Normalisation des coordonnees
-            vec.y = (vec.y+1)*height/2;
+//            vec.x = (vec.x+1)*width/2;      // Normalisation des coordonnees
+//            vec.y = (vec.y+1)*height/2;
             vertics.push_back(vec);
         } else if (startLine.compare("f") == 0) {
             vector<int> face;
