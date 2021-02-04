@@ -67,9 +67,11 @@ void drawTriangle(Vec3f v1, Vec3f v2, Vec3f v3, TGAImage &image, TGAColor color)
 }
 
 Vec3f translateCoords(Vec3f vec) {
-    vec.x = (vec.x+1)*width/2;
-    vec.y = (vec.y+1)*height/2;
-    return vec;
+    Vec3f v;
+    v.x = int((vec.x+1)*width/2);
+    v.y = int((vec.y+1)*height/2);
+    v.z = int(vec.z);
+    return v;
 }
 
 int main() {
