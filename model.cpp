@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Model::Model(const char *filename, int width, int height): vertics(), faces() {
+Model::Model(const string filename): vertices(), faces(), tex_vertices(), diffuse(){
     ifstream model;
     model.open(filename, std::ifstream::in);
 
@@ -25,32 +25,39 @@ Model::Model(const char *filename, int width, int height): vertics(), faces() {
             iss >> vec.x;
             iss >> vec.y;
             iss >> vec.z;
-//            vec.x = (vec.x+1)*width/2;      // Normalisation des coordonnees
-//            vec.y = (vec.y+1)*height/2;
-            vertics.push_back(vec);
+            vertices.push_back(vec);
         } else if (startLine.compare("f") == 0) {
-            vector<int> face;
+            std::vector<Vec2i> face;
             for (int i = 0; i < 3; i++) {
-                int vert, itmp;
+                Vec2i vec;
+                int vert, tex, itmp;
                 char tmp;
-                //     nb      /       nb      /       nb
-                iss >> vert >> tmp >> itmp >> tmp >> itmp;
-                face.push_back(vert-1); // On ajoute l'index-1 car la liste commence a 1
+//                      nb      /      nb     /      nb
+                iss >> vert >> tmp >> tex >> tmp >> itmp;
+                vec.x = vert -1;    // Pour les points
+                vec.y = tex -1;     // Pour les textures
+                face.push_back(vec);
             }
             faces.push_back(face);
+        } else if (startLine.compare("vt") == 0) {
+            Vec2f vec;
+            iss >> vec.x;
+            iss >> vec.y;
+            tex_vertices.push_back(vec);
         }
     }
 
+    diffuse.read_tga_file("../obj/african_head_diffuse.tga");
     model.close();
 }
 
-int Model::nbVertics() {
-    return vertics.size();
+int Model::nbVertices() {
+    return vertices.size();
 }
 
-Vec3f Model::vertic(int index) {
-    if (index < nbVertics()) {
-        return vertics[index];
+Vec3f Model::vertex(int index) {
+    if (index < nbVertices() && index >= 0) {
+        return vertices[index];
     }
 }
 
@@ -58,8 +65,22 @@ int Model::nbFaces() {
     return faces.size();
 }
 
-vector<int> Model::face(int index) {
-    if (index < nbFaces()) {
+std::vector<Vec2i> Model::face(int index) {
+    if (index < nbFaces() && index >= 0) {
         return faces[index];
     }
+}
+
+int Model::nbTextures() {
+    return tex_vertices.size();
+}
+
+Vec2f Model::texture(int index) {
+    if (index < nbTextures() && index >= 0) {
+        return tex_vertices[index];
+    }
+}
+
+TGAColor Model::getTexturePoint(Vec2f vec) {
+    return diffuse.get(vec.x * diffuse.get_width(), vec.y * diffuse.get_height());
 }

@@ -54,7 +54,7 @@ Vec3f translateCoords(Vec3f vec) {
 }
 
 int main() {
-    Model model("../obj/african_head.obj", width, height);
+    Model model("../obj/african_head.obj");
     TGAImage image(width, height, TGAImage::RGB);
 
     float zbuffer[width*height];
@@ -64,11 +64,13 @@ int main() {
 
     Vec3f light(0, 0, -1 );
     for (int i = 0; i < model.nbFaces(); i++) {
-        std::vector<int> face = model.face(i);
+        std::vector<Vec2i> face = model.face(i);
 
         Vec3f v[3];
+        Vec2f tex[3];
         for (int i = 0; i < 3; i++) {
-            v[i] = model.vertic(face[i]);
+            v[i] = model.vertex(face[i].x);
+            tex[i] = model.texture(face[i].y);
         }
 
         Vec3f n = cross((v[2]-v[0]), (v[1]-v[0]));
@@ -76,9 +78,10 @@ int main() {
 
         float intensity = n*light;
         if (intensity > 0) {
-            TGAColor color = {intensity * 255, intensity * 255, intensity * 255, 255};
+            TGAColor color = {intensity*255, intensity*255, intensity*255};
             for (int i = 0; i < 3; i++) {
                 v[i] = translateCoords(v[i]);
+                //color[i] *= intensity;
             }
             drawTriangle(v, zbuffer, image, color);
         }
