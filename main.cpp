@@ -20,7 +20,7 @@ Vec3f barycentric(Vec3f A, Vec3f B, Vec3f C, Vec3f P) {
     return Vec3f(-1,1,1); // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
-void drawTriangle(Vec3f *pts, float *zbuffer, TGAImage &image, TGAColor color) {
+void drawTriangle(Vec3f *pts, std::vector<float> &zbuffer, TGAImage &image, TGAColor color) {
     Vec2f bboxmin( std::numeric_limits<float>::max(),  std::numeric_limits<float>::max());
     Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
     Vec2f clamp(image.get_width()-1, image.get_height()-1);
@@ -57,7 +57,7 @@ int main() {
     Model model("../obj/african_head.obj");
     TGAImage image(width, height, TGAImage::RGB);
 
-    float zbuffer[width*height];
+    std::vector<float> zbuffer;
     for (int i = 0; i < width*height; i++) {
         zbuffer[i] = std::numeric_limits<float>::min();
     }
@@ -78,10 +78,10 @@ int main() {
 
         float intensity = n*light;
         if (intensity > 0) {
-            TGAColor color = {intensity*255, intensity*255, intensity*255};
+            TGAColor color = model.getTexturePoint(tex[0]);
             for (int i = 0; i < 3; i++) {
                 v[i] = translateCoords(v[i]);
-                //color[i] *= intensity;
+                color[i] *= intensity;
             }
             drawTriangle(v, zbuffer, image, color);
         }

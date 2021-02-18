@@ -13,7 +13,7 @@ private:
     TGAImage diffuse;
 
 public:
-    Model(const std::string filename);
+    Model(const std::string& filename);
 
     int nbVertices();
     Vec3f vertex(int index);

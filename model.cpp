@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Model::Model(const string filename): vertices(), faces(), tex_vertices(), diffuse(){
+Model::Model(const string& filename): vertices(), faces(), tex_vertices(), diffuse(){
     ifstream model;
     model.open(filename, std::ifstream::in);
 
